@@ -259,6 +259,7 @@ INCLUDEPATH += $$UESRCROOT/Runtime/XmlParser/Public
 INCLUDEPATH += $$UESRCROOT/Runtime/Engine/Classes
 ##
 INCLUDEPATH += $$UESRCROOT/../Plugins/Runtime/GameplayAbilities/Source/GameplayAbilities/Public
+INCLUDEPATH += $$UESRCROOT/../Plugins/EnhancedInput/Source/EnhancedInput/Public
 INCLUDEPATH += $$UESRCROOT/../Plugins/Runtime/ChunkDownloader/Source/Public
 ## online subsystem
 INCLUDEPATH += $$UESRCROOT/../Plugins/Online/OnlineSubsystem/Source/Public

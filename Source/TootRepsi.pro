@@ -9,8 +9,8 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 #
-#
-PRJNAMETOOT = TOOTREPSI
+# below one line project name need to be lowercaes
+PRJNAMETOOT = TootRepsi
 DEFINES += "TOOTREPSI_API="
 DEFINES += "TOOTREPSI_API(...)="
 #
@@ -27,7 +27,7 @@ DEFINES += "WITH_EDITORONLY_DATA=1"
 
 
 INCLUDEPATH += ../Intermediate/Build/Win64/UnrealEditor/Inc/$$PRJNAMETOOT/UHT
-INCLUDEPATH += $$PRJNAMETOOT/Public $$PRJNAMETOOT/Private
+INCLUDEPATH += $$PRJNAMETOOT $$PRJNAMETOOT/Public $$PRJNAMETOOT/Private
 #INCLUDEPATH += ../Plugins/NNEPostProcessing/Source/NNEPostProcessing/Public
 # we should follow UE project struct to include files, start from prj.Build.cs folder
 #
@@ -50,7 +50,13 @@ DISTFILES += \
     TootRepsiEditor.Target.cs
 
 HEADERS += \
+    TootRepsi/Public/TootMainGM.h \
+    TootRepsi/Public/TootRepsiCharacter.h \
+    TootRepsi/Public/TootRepsiPlayerCtrlor.h \
     TootRepsi/TootRepsi.h
 
 SOURCES += \
+    TootRepsi/Private/TootMainGM.cpp \
+    TootRepsi/Private/TootRepsiCharacter.cpp \
+    TootRepsi/Private/TootRepsiPlayerCtrlor.cpp \
     TootRepsi/TootRepsi.cpp
