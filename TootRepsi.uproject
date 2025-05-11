@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{2CFE4016-47C9-16E1-72DE-0AA48F1BA3AA}",
+	"EngineAssociation": "{6EC6E072-437E-C5AC-F02A-F780DFCAFD8F}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -21,5 +21,9 @@
 				"Editor"
 			]
 		}
+	],
+	"TargetPlatforms": [
+		"Android",
+		"Windows"
 	]
 }

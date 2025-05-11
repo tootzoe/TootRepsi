@@ -1,7 +1,7 @@
 #
 # modify this two folder location to fit your environment
 #
-UESRCROOT = "C:/UnrealEngine/Engine/Source"
+UESRCROOT = "D:/UnrealEngine/Engine/Source"
 WINKITSROOT = "C:/Program Files (x86)/Windows Kits/10"
 #
 INCLUDEPATH += $$WINKITSROOT/include/10.0.22621.0/ucrt

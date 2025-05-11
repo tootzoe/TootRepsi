@@ -2,7 +2,7 @@
 setlocal
 
 ::  Change this UE ROOT folder according to your environment
-SET UE_FOLDER=C:\UnrealEngine
+SET UE_FOLDER=D:\UnrealEngine
 
 
 echo "++++++++========= Ver: 2025-02-20 ===++++++++++++++"

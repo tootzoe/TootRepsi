@@ -50,6 +50,7 @@ DISTFILES += \
     TootRepsiEditor.Target.cs
 
 HEADERS += \
+    TootRepsi/PrjLog.h \
     TootRepsi/Public/TootMainGM.h \
     TootRepsi/Public/TootRepsiCharacter.h \
     TootRepsi/Public/TootRepsiPlayerCtrlor.h \
@@ -59,4 +60,5 @@ SOURCES += \
     TootRepsi/Private/TootMainGM.cpp \
     TootRepsi/Private/TootRepsiCharacter.cpp \
     TootRepsi/Private/TootRepsiPlayerCtrlor.cpp \
+    TootRepsi/PrjLog.cpp \
     TootRepsi/TootRepsi.cpp

@@ -10,6 +10,8 @@
 #include <EnhancedInputSubsystems.h>
 #include <InputMappingContext.h>
 
+#include "TootRepsi/PrjLog.h"
+
 
 // Sets default values
 ATootRepsiCharacter::ATootRepsiCharacter()
@@ -20,6 +22,9 @@ ATootRepsiCharacter::ATootRepsiCharacter()
 
     //RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
 
+
+
+    UE_LOG(LogTootRepsi, Warning, TEXT("msg....%hs") , __func__);
 
 }
 
