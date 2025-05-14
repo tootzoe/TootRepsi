@@ -51,12 +51,14 @@ DISTFILES += \
 
 HEADERS += \
     TootRepsi/PrjLog.h \
+    TootRepsi/Public/MapRoom.h \
     TootRepsi/Public/TootMainGM.h \
     TootRepsi/Public/TootRepsiCharacter.h \
     TootRepsi/Public/TootRepsiPlayerCtrlor.h \
     TootRepsi/TootRepsi.h
 
 SOURCES += \
+    TootRepsi/Private/MapRoom.cpp \
     TootRepsi/Private/TootMainGM.cpp \
     TootRepsi/Private/TootRepsiCharacter.cpp \
     TootRepsi/Private/TootRepsiPlayerCtrlor.cpp \
