@@ -253,4 +253,6 @@ void AMapRoom::placePointLight(float intensity, float radius, const FRotator &ro
     l->bUseInverseSquaredFalloff = false;
     l->LightFalloffExponent = 1;
 
+
+
 }

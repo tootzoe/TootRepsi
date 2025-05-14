@@ -52,6 +52,9 @@ DISTFILES += \
 HEADERS += \
     TootRepsi/PrjLog.h \
     TootRepsi/Public/MapRoom.h \
+    TootRepsi/Public/PlayerBotController.h \
+    TootRepsi/Public/PlayerBotPawn.h \
+    TootRepsi/Public/TootFlyBotGM.h \
     TootRepsi/Public/TootMainGM.h \
     TootRepsi/Public/TootRepsiCharacter.h \
     TootRepsi/Public/TootRepsiPlayerCtrlor.h \
@@ -59,6 +62,9 @@ HEADERS += \
 
 SOURCES += \
     TootRepsi/Private/MapRoom.cpp \
+    TootRepsi/Private/PlayerBotController.cpp \
+    TootRepsi/Private/PlayerBotPawn.cpp \
+    TootRepsi/Private/TootFlyBotGM.cpp \
     TootRepsi/Private/TootMainGM.cpp \
     TootRepsi/Private/TootRepsiCharacter.cpp \
     TootRepsi/Private/TootRepsiPlayerCtrlor.cpp \
