@@ -4,7 +4,7 @@
 #include "PlayerBotPawn.h"
 
 #include "Engine/World.h"
-#include "Components/SphereComponent.h"
+
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 
@@ -29,11 +29,12 @@ APlayerBotPawn::APlayerBotPawn()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
 
-    PawnRootSphere = CreateDefaultSubobject<USphereComponent>(TEXT("RootSphere"));
-    SetRootComponent(PawnRootSphere);
+    PawnRootDummy = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PawnRootDummy"));
+    SetRootComponent(PawnRootDummy);
+    PawnRootDummy->SetVisibleFlag(false);
     //body
     PawnBody = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Body"));
-    PawnBody->SetupAttachment(PawnRootSphere );
+    PawnBody->SetupAttachment(PawnRootDummy );
     //head
     PawnHead = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Head"));
     PawnHead->SetupAttachment(PawnBody );
@@ -41,13 +42,17 @@ APlayerBotPawn::APlayerBotPawn()
 
     //spring arm
     PawnSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-    PawnSpringArm->SetupAttachment(PawnRootSphere );
+    PawnSpringArm->SetupAttachment(PawnRootDummy );
     //camera
     PawnCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
     PawnCamera->SetupAttachment(PawnSpringArm , USpringArmComponent::SocketName );
 
     // input and movement
     FloatingMovement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("FloatingMovement"));
+    FloatingMovement->MaxSpeed = 5000.f;
+    FloatingMovement->Acceleration = 5000.f;
+    FloatingMovement->Deceleration = 1000.f;
+
 
     MoveScale = 1.f;
     RotateScale = 50.f;

@@ -5,6 +5,7 @@
 
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Components/PointLightComponent.h"
+#include "Components/BoxComponent.h"
 
 #include "UObject/UnrealType.h"
 
@@ -21,6 +22,12 @@ AMapRoom::AMapRoom()
 
     GridSize = 1000.f;
     RoomSize = 3;
+    WallThickness = 50.f;
+    TubeCollisionSides = 24;
+    TubeCollisionRadius = 200.f;
+    TubeCollisionThickness = 80.f;
+    TubeCollisionYScale = .9f;
+
     doRebuild = true;
 
 
@@ -104,12 +111,19 @@ void AMapRoom::OnConstruction(const FTransform &Transform)
     GetComponents<UPointLightComponent>(tmpLightArr);
     for(auto l : tmpLightArr)
         l->DestroyComponent();
+    //
+    TArray<UBoxComponent*> tubeBoxCollisionArr;
+    GetComponents<UBoxComponent>(tubeBoxCollisionArr);
+    for(auto b : tubeBoxCollisionArr)
+        b->DestroyComponent();
+
+
 #endif
 
 
 
     int32 halfSz = RoomSize / 2;
-    int32 wallOffset = (halfSz + 1) * GridSize;
+     wallOffset = (halfSz + 1) * GridSize;
     FVector tmpWallPos (-wallOffset , 0.f , 0.f);
 
 
@@ -202,21 +216,12 @@ void AMapRoom::OnConstruction(const FTransform &Transform)
     }
 
     // build tubes
-    tmpWallPos.Y = 0;
-    tmpWallPos.Z = 0;
-
-    auto placeTubesByCount = [&](uint32 cnt , const FRotator &rot){
-         for (uint32 i = 1; i < cnt; ++i) {
-              tmpWallPos.X = -1 * (wallOffset + 525 + GridSize * i);
-              addMeshInstance(Tubes, rot , rot , tmpWallPos);
-              placePointLight(1.f , GridSize, rot, tmpWallPos);
-         }
-    };
-
     for ( FRotator  r : tmpRotatorArr) {
         //UE_LOG(LogTemp, Warning, TEXT("Idx %d ....%hs") , tmpRotatorArr.IndexOfByKey(r), __func__);
-         placeTubesByCount(tmpTubeCntPerSideArr[tmpRotatorArr.IndexOfByKey(r)], r);
+        // placeTubesByCount(tmpTubeCntPerSideArr[tmpRotatorArr.IndexOfByKey(r)], r);
+        placeTubeMeshInstance(tmpTubeCntPerSideArr[tmpRotatorArr.IndexOfByKey(r)], r);
     }
+
 
 
     // place light
@@ -238,21 +243,114 @@ void AMapRoom::PostEditChangeProperty(FPropertyChangedEvent &PropertyChangedEven
 
 void AMapRoom::placePointLight(float intensity, float radius, const FRotator &rot, const FVector &translation)
 {
-    auto l =  NewObject<UPointLightComponent>(this, MakeUniqueObjectName(this, UPointLightComponent::StaticClass()));
+    auto l = placeComp<UPointLightComponent>(FTransform(rot, rot.RotateVector(translation)));
 
-    checkf(l , TEXT("Failed to create new point light  ...."));
-
-    l->AttachToComponent(RootComponent , FAttachmentTransformRules::KeepRelativeTransform);
-    l->RegisterComponent();  // register with render system and physics system
-    AddInstanceComponent(l);  // show detail panle when selected in UnrealEditor
-    l->SetRelativeTransform(FTransform(rot, rot.RotateVector(translation)));
     l->SetIntensity(intensity);
     l->SetAttenuationRadius(radius);
     l->SetSoftSourceRadius(radius);
     l->SetCastShadows(false);
     l->bUseInverseSquaredFalloff = false;
     l->LightFalloffExponent = 1;
+}
+
+void AMapRoom::placeTubeMeshInstance(uint32 tubeCount, const FRotator &rot)
+{
+    FVector tran(wallOffset, 0.f , 0.f);
+    FVector extBox (WallThickness / 2.f ,wallOffset ,wallOffset  );
+
+    if(tubeCount < 1)
+    {
+        placeTubeCollisionBox(extBox, rot, tran);
+        return;
+    }
+
+     tran.Y = (wallOffset / 2.f) - (GridSize / 4.f);
+     tran.Z = (wallOffset / 2.f) + (GridSize / 4.f);
+
+    extBox.Y = tran.Z;
+    extBox.Z = tran.Y;
+
+    const TArray<float> tmpArr1 = {0, 90.f, 180.f , 270.f};
+
+    for(auto f : tmpArr1){
+        placeTubeCollisionBox(extBox,  rot + FRotator(0.f ,0.f , f), tran);
+    }
+
+#define TUBE_WALL_EXTRA_POSITIVE_OFFSET 525
+
+    tran.Y = 0;
+    tran.Z = 0;
+    placePointLight(1.f , GridSize , rot, tran);
+
+    for (uint32 i = 1; i < tubeCount; ++i) {
+       // tran.X = i * GridSize + wallOffset;
+        tran.X = - (wallOffset + TUBE_WALL_EXTRA_POSITIVE_OFFSET + GridSize * i);
+        addMeshInstance(Tubes, rot , rot , tran);
+        placePointLight(1.f , GridSize, rot, tran);
+    }
+
+    extBox.X  = tubeCount * GridSize / 2.f - (GridSize - WallThickness) / 4.f;
+    extBox.Y = GridSize / 2.f * TubeCollisionYScale;
+    extBox.Z = TubeCollisionThickness / 2.f  ;
+
+    tran.X = - (wallOffset   - (WallThickness / 2.f ) + extBox.X);
 
 
 
+    for (uint32 i = 0; i < TubeCollisionSides; ++i) {
+        float a = (float(i) / float( TubeCollisionSides ) ) * (2.f * PI);
+         tran.Y = FMath::Sin(a) * TubeCollisionRadius;
+         tran.Z = FMath::Cos(a) * TubeCollisionRadius;
+
+        // FMath::SinCos(&tran.Y , &tran.Z , a );
+        // tran.Y  *= TubeCollisionRadius;
+        // tran.Z *=  TubeCollisionRadius;
+
+        placeTubeCollisionBox(extBox, rot, tran, FRotator(0.f, 0.f , a * (180.f / PI)));
+
+    }
+
+
+
+
+
+
+    // tmpWallPos.Y = 0;
+    // tmpWallPos.Z = 0;
+
+    // auto placeTubesByCount = [&](uint32 cnt , const FRotator &rot){
+    //      for (uint32 i = 1; i < cnt; ++i) {
+    //           tmpWallPos.X = -1 * (wallOffset + 525 + GridSize * i);
+    //           addMeshInstance(Tubes, rot , rot , tmpWallPos);
+    //           placePointLight(1.f , GridSize, rot, tmpWallPos);
+    //      }
+    // };
+
+    // for ( FRotator  r : tmpRotatorArr) {
+    //     //UE_LOG(LogTemp, Warning, TEXT("Idx %d ....%hs") , tmpRotatorArr.IndexOfByKey(r), __func__);
+    //      placeTubesByCount(tmpTubeCntPerSideArr[tmpRotatorArr.IndexOfByKey(r)], r);
+    // }
+
+}
+
+
+template<class T>
+ T* AMapRoom::placeComp( const FTransform& transform)
+{
+
+    T* c = NewObject<T>(this, MakeUniqueObjectName(this, T::StaticClass()));
+    c->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+    c->RegisterComponent();
+    AddInstanceComponent(c);
+    c->SetRelativeTransform(transform );
+
+    return c;
+}
+
+
+void AMapRoom::placeTubeCollisionBox(const FVector &extent, const FRotator &rot, const FVector &tran, const FRotator &sideRot)
+{
+    UBoxComponent* bc = placeComp<UBoxComponent>( FTransform( rot + sideRot, rot.RotateVector(tran))  );
+    bc->SetCollisionProfileName(TEXT("BlockAll"));
+    bc->SetBoxExtent(extent);
 }

@@ -68,13 +68,27 @@ public:
     UPROPERTY(EditAnywhere, Category="TOOT" , meta = (ClampMin = 1 , ClampMax = 20 , RebuildMapRoom))
     uint32 RoomSize;
 
+    UPROPERTY(EditAnywhere, Category="TOOT" , meta = (ClampMin = 0  , RebuildMapRoom))
+    float WallThickness;
+    UPROPERTY(EditAnywhere, Category="TOOT" , meta = (ClampMin = 3  ,ClampMax = 24 , RebuildMapRoom))
+    uint32 TubeCollisionSides;
+    UPROPERTY(EditAnywhere, Category="TOOT" , meta = (ClampMin = 0   , RebuildMapRoom))
+    float TubeCollisionRadius;
+    UPROPERTY(EditAnywhere, Category="TOOT" , meta = (ClampMin = 0   , RebuildMapRoom))
+    float TubeCollisionThickness;
+    UPROPERTY(EditAnywhere, Category="TOOT" , meta = (ClampMin = 0   , ClampMax = 1 ,RebuildMapRoom))
+    float TubeCollisionYScale;
+
+
     private:
 
     void placePointLight(float intensity , float radius ,const FRotator& rot ,const FVector& translation);
 
+    void placeTubeMeshInstance(uint32 tubeCount , const FRotator& rot);
+    void placeTubeCollisionBox(const FVector& extent , const FRotator& rot , const FVector& tran , const FRotator& sideRot = FRotator::ZeroRotator);
+    template<class T> T* placeComp(  const FTransform& transform);
 
-
-
+    int32 wallOffset;
     float lastGridSz;
     uint32 lastRoomSz;
 

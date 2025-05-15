@@ -18,7 +18,7 @@ public:
 
 
     UPROPERTY(EditAnywhere, Category="TOOT")
-    class USphereComponent* PawnRootSphere;
+    UStaticMeshComponent* PawnRootDummy;
     UPROPERTY(EditAnywhere, Category="TOOT")
     UStaticMeshComponent* PawnBody;
     UPROPERTY(EditAnywhere, Category="TOOT")
