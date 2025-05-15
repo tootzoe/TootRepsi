@@ -33,6 +33,20 @@ public:
 
 
 
+    // input action
+    UPROPERTY(EditAnywhere, Category="TOOT")
+    class UFloatingPawnMovement* FloatingMovement;
+    // input action
+    UPROPERTY(EditAnywhere, Category="TOOT")
+    float MoveScale;
+    UPROPERTY(EditAnywhere, Category="TOOT")
+    float RotateScale;
+    UPROPERTY(EditAnywhere, Category="TOOT")
+    bool bFreeFly;
+
+
+
+
 
 public:	
 	// Called every frame
@@ -45,6 +59,15 @@ protected:
     // Called when the game starts or when spawned
   //  virtual void BeginPlay() override;
 
+    private:
+
+
+    void botMove(const struct FInputActionValue& val);
+    void botRotate(const struct FInputActionValue& val);
+    void botFreeFly();
+    void botFire( );
 	
+
+
 	
 };

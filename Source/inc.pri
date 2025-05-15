@@ -112,6 +112,7 @@ INCLUDEPATH += $$UESRCROOT/Runtime/ImageCore/Public
 INCLUDEPATH += $$UESRCROOT/Runtime/ImageWrapper/Public
 INCLUDEPATH += $$UESRCROOT/Runtime/ImageWriteQueue/Public
 INCLUDEPATH += $$UESRCROOT/Runtime/InputCore/Public
+INCLUDEPATH += $$UESRCROOT/Runtime/InputCore/Classes
 INCLUDEPATH += $$UESRCROOT/Runtime/InputDevice/Public
 INCLUDEPATH += $$UESRCROOT/Runtime/InstallBundleManager/Public
 INCLUDEPATH += $$UESRCROOT/Runtime/InteractiveToolsFramework/Public
