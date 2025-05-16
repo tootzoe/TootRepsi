@@ -88,6 +88,7 @@ void APlayerBotPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     tmpEIC->BindAction(tmpPC->RotateIA, ETriggerEvent::Triggered, this, &APlayerBotPawn::botRotate );
     tmpEIC->BindAction(tmpPC->FreeFlyIA, ETriggerEvent::Started, this, &APlayerBotPawn::botFreeFly );
     tmpEIC->BindAction(tmpPC->FireIA, ETriggerEvent::Started, this, &APlayerBotPawn::botFire );
+   // tmpEIC->BindAction()
 
     ULocalPlayer* tmpLocalPlayer = tmpPC->GetLocalPlayer();
     check(tmpLocalPlayer);

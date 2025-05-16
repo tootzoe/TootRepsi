@@ -9,6 +9,10 @@
 
 #include "UObject/UnrealType.h"
 
+
+
+
+
 #include "TootRepsi/PrjLog.h"
 
 
@@ -56,8 +60,8 @@ AMapRoom::AMapRoom()
 // Called when the game starts or when spawned
 // void AMapRoom::BeginPlay()
 // {
-// 	Super::BeginPlay();
-	
+//     Super::BeginPlay();
+
 // }
 
 // // Called every frame

@@ -22,5 +22,10 @@ class TOOTREPSI_API ATootFlyBotGM : public AGameModeBase
 
     private:
 
+#if WITH_GAMEPLAY_DEBUGGER
+   // UFUNCTION()
+    void tootDebugFunc1();
+    void tootDebugKeyFunc1();
+#endif
 
 };
