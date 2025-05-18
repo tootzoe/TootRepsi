@@ -31,6 +31,8 @@ class TOOTREPSI_API APlayerBotController : public APlayerController
     //
     UPROPERTY()
     class UInputAction* FireIA;
+    UPROPERTY()
+    class UInputAction* SprintArmIA;
 
 
 

@@ -7,8 +7,11 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "Engine/GameInstance.h"
+#include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/InputComponent.h"
+#include "EngineUtils.h"
+
 
 #include "PlayerBotPawn.h"
 #include "PlayerBotController.h"
@@ -27,6 +30,24 @@ ATootFlyBotGM::ATootFlyBotGM(const FObjectInitializer &ObjectInitializer) : Supe
 
 }
 
+void ATootFlyBotGM::InitGame(const FString &MapName, const FString &Options, FString &ErrorMessage)
+{
+    Super::InitGame(MapName, Options, ErrorMessage);
+
+    UE_LOG(LogTemp, Warning, TEXT("MapName: %s....%hs") , *MapName , __func__);
+
+
+    for (TActorIterator<APlayerStart> it(GetWorld()) ; it ; ++it) {
+        // #include "EngineUtils.h"  ....  TArray.Add(*it);
+        playerStartsArr.Add(*it);
+        UE_LOG(LogTemp, Warning, TEXT("Found player start: %s ....%hs") , *(*it)->GetName() , __func__);
+    }
+
+
+
+}
+
+
 void ATootFlyBotGM::SetPlayerDefaults(APawn *PlayerPawn)
 {
     Super::SetPlayerDefaults(PlayerPawn);
@@ -35,7 +56,7 @@ void ATootFlyBotGM::SetPlayerDefaults(APawn *PlayerPawn)
 #if WITH_GAMEPLAY_DEBUGGER
 
    // GetWorld()->GetTimerManager().SetTimer(this, );
-     GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ATootFlyBotGM::tootDebugFunc1 );
+    // GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ATootFlyBotGM::tootDebugFunc1 );
 
     UE_LOG(LogTemp, Warning, TEXT(" WITH_GAMEPLAY_DEBUGGER has msg....%hs") , __func__);
 
@@ -75,7 +96,8 @@ void ATootFlyBotGM::tootDebugFunc1()
         }
     }else{
 
-        GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ATootFlyBotGM::tootDebugFunc1 );
+        //
+       // GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ATootFlyBotGM::tootDebugFunc1 );
     }
 }
 
@@ -85,3 +107,36 @@ void ATootFlyBotGM::tootDebugKeyFunc1()
 
 }
 #endif
+
+
+void ATootFlyBotGM::PostLogin(APlayerController *NewPlayer)
+{
+    Super::PostLogin(NewPlayer);
+}
+
+FString ATootFlyBotGM::InitNewPlayer(APlayerController *NewPlayerController, const FUniqueNetIdRepl &UniqueId, const FString &Options, const FString &Portal)
+{
+    if(playerStartsArr.Num() < 1){
+        UE_LOG(LogTemp, Warning, TEXT("No more player allowed....%hs") , __func__);
+        return FString(TEXT("No player start available...."));
+    }
+
+    NewPlayerController->StartSpot = playerStartsArr.Pop();
+
+    UE_LOG(LogTemp, Warning, TEXT("Born Player %s at %s ....%hs") ,
+           *NewPlayerController->GetName() , *NewPlayerController->StartSpot->GetName() , __func__);
+
+   return Super::InitNewPlayer(NewPlayerController,UniqueId, Options, Portal);
+
+
+
+}
+
+void ATootFlyBotGM::PreLogin(const FString &Options, const FString &Address, const FUniqueNetIdRepl &UniqueId, FString &ErrorMessage)
+{
+    if(playerStartsArr.Num() < 1){
+        ErrorMessage = TEXT("Server full already.....");
+     }
+
+    Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
+}

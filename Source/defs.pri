@@ -68,6 +68,10 @@ DEFINES += "COLLECTIONMANAGER_API="
 ##
 ##
 DEFINES += "LogTemp" "Warning"
+DEFINES += "BlueprintAuthorityOnly" "BlueprintCosmetic" "BlueprintNativeEvent"
+DEFINES += "Client" "CustomThunk" "Exec" "CallInEditor"
+DEFINES += "NetMulticast" "Reliable" "Unreliable" "WithValidation"
+DEFINES += "ServiceResponse" "Server" "SealedEvent" "ServiceRequest"
 DEFINES += "BlueprintType" "Blueprintable" "BlueprintPure" "BlueprintImplementableEvent"
 DEFINES += "BlueprintAssignable" "BlueprintInternalUseOnly" "EditAnywhere" "EditDefaultsOnly"
 DEFINES += "VisibleAnywhere" "BlueprintReadOnly"
@@ -78,4 +82,4 @@ DEFINES += "Transient"
 DEFINES += "checkf" "check" "checkAtCompileTime" "checkCode" "checkfSlow" "checkLockFreePointerList"
 DEFINES += "checkName" "checkNoEntry" "checkNoRecursion" "checkNoReentry" "checkSlow" "checkStats"
 ## online subsystem
-DEFINES += "NAME_GameSession"
+DEFINES += "NAME_GameSession" "_Implementation"

@@ -8,6 +8,7 @@
 
 #include "MapRoom.generated.h"
 
+
 UCLASS()
 class TOOTREPSI_API AMapRoom : public AActor
 {
@@ -70,6 +71,8 @@ protected:
 
     UPROPERTY(EditAnywhere, Category="TOOT" , meta = (ClampMin = 0  , RebuildMapRoom))
     float WallThickness;
+    UPROPERTY(EditAnywhere, Category="TOOT" , meta = (  RebuildMapRoom))
+    float EdgeCollisionOffset;
     UPROPERTY(EditAnywhere, Category="TOOT" , meta = (ClampMin = 3  ,ClampMax = 24 , RebuildMapRoom))
     uint32 TubeCollisionSides;
     UPROPERTY(EditAnywhere, Category="TOOT" , meta = (ClampMin = 0   , RebuildMapRoom))
@@ -87,6 +90,8 @@ protected:
     void placeTubeMeshInstance(uint32 tubeCount , const FRotator& rot);
     void placeTubeCollisionBox(const FVector& extent , const FRotator& rot , const FVector& tran , const FRotator& sideRot = FRotator::ZeroRotator);
     template<class T> T* placeComp(  const FTransform& transform);
+
+
 
     int32 wallOffset;
     float lastGridSz;

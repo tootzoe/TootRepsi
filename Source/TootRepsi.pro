@@ -47,7 +47,9 @@ include(inc.pri)
 DISTFILES += \
     TootRepsi.Target.cs \
     TootRepsi/TootRepsi.Build.cs \
-    TootRepsiEditor.Target.cs
+    TootRepsiClient.Target.cs \
+    TootRepsiEditor.Target.cs \
+    TootRepsiServer.Target.cs
 
 HEADERS += \
     TootRepsi/PrjLog.h \

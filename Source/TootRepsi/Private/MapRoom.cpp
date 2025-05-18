@@ -18,6 +18,8 @@
 
 
 
+
+
 // Sets default values
 AMapRoom::AMapRoom()
 {
@@ -27,6 +29,7 @@ AMapRoom::AMapRoom()
     GridSize = 1000.f;
     RoomSize = 3;
     WallThickness = 50.f;
+    EdgeCollisionOffset = -250;
     TubeCollisionSides = 24;
     TubeCollisionRadius = 200.f;
     TubeCollisionThickness = 80.f;
@@ -82,6 +85,8 @@ static FORCEINLINE void addMeshInstance(UInstancedStaticMeshComponent* comp,
 }
 
 
+
+
 void AMapRoom::OnConstruction(const FTransform &Transform)
 {
     AActor::OnConstruction(Transform);
@@ -94,7 +99,6 @@ void AMapRoom::OnConstruction(const FTransform &Transform)
     doRebuild = false;
 
     //UE_LOG(LogTootRepsi, Warning, TEXT("Rebuild MapRoom....%hs") , __func__);
-
 
     lastGridSz =  GridSize;
     lastRoomSz  = RoomSize;
@@ -222,14 +226,25 @@ void AMapRoom::OnConstruction(const FTransform &Transform)
     // build tubes
     for ( FRotator  r : tmpRotatorArr) {
         //UE_LOG(LogTemp, Warning, TEXT("Idx %d ....%hs") , tmpRotatorArr.IndexOfByKey(r), __func__);
-        // placeTubesByCount(tmpTubeCntPerSideArr[tmpRotatorArr.IndexOfByKey(r)], r);
         placeTubeMeshInstance(tmpTubeCntPerSideArr[tmpRotatorArr.IndexOfByKey(r)], r);
     }
 
+    // place edge collision boxes
+    tmpWallPos.X = (wallOffset + EdgeCollisionOffset);
+    tmpWallPos.Y = 0;
+    tmpWallPos.Z = tmpWallPos.X;
+    FVector edgeExtBox(WallThickness / 2.f , wallOffset, GridSize / 2.f);
+    const TArray<FRotator> heightRotArr  = {FRotator(-90.f,0.f,0.f) , FRotator(45.f,45.f,0.f), FRotator(180.f,0.f,0.f) };
+    const TArray<FRotator> selfRotArr    = {FRotator(45.f,0.f,0.f) , FRotator(45.f,0.f, 90.f), FRotator(45.f,0.f,0.f) };
+    for (auto r : tmpEdgesRotatorArr) {
+        for (int32 i = 0; i < heightRotArr.Num(); ++i) {
+            placeTubeCollisionBox(edgeExtBox, r + heightRotArr[i], tmpWallPos , selfRotArr[i]);
+        }
+    }
 
 
     // place light
-    tmpWallPos.X = 0;
+    tmpWallPos = FVector::ZeroVector;
     placePointLight(2.f, wallOffset * 2, tmpRotatorArr[0] , tmpWallPos);
 
 }
@@ -259,8 +274,10 @@ void AMapRoom::placePointLight(float intensity, float radius, const FRotator &ro
 
 void AMapRoom::placeTubeMeshInstance(uint32 tubeCount, const FRotator &rot)
 {
-    FVector tran(wallOffset, 0.f , 0.f);
+    FVector tran(-wallOffset, 0.f , 0.f);
     FVector extBox (WallThickness / 2.f ,wallOffset ,wallOffset  );
+
+   // DrawDebugBox(GetWorld(), tran, extBox , FColor::Yellow , false, 999.f ,0 , 4.f );
 
     if(tubeCount < 1)
     {
@@ -274,6 +291,11 @@ void AMapRoom::placeTubeMeshInstance(uint32 tubeCount, const FRotator &rot)
     extBox.Y = tran.Z;
     extBox.Z = tran.Y;
 
+
+
+    //DrawDebugLine(GetWorld(), tran,  extBox, FColor::Green, true, -1.f, 0, 2.f);
+   // DrawDebugBox(GetWorld(), tran, extBox , FColor::Red , false, 999.f ,0 , 4.f );
+
     const TArray<float> tmpArr1 = {0, 90.f, 180.f , 270.f};
 
     for(auto f : tmpArr1){
@@ -282,8 +304,10 @@ void AMapRoom::placeTubeMeshInstance(uint32 tubeCount, const FRotator &rot)
 
 #define TUBE_WALL_EXTRA_POSITIVE_OFFSET 525
 
+   // tran.X = 0;
     tran.Y = 0;
     tran.Z = 0;
+
     placePointLight(1.f , GridSize , rot, tran);
 
     for (uint32 i = 1; i < tubeCount; ++i) {
@@ -314,27 +338,6 @@ void AMapRoom::placeTubeMeshInstance(uint32 tubeCount, const FRotator &rot)
 
     }
 
-
-
-
-
-
-    // tmpWallPos.Y = 0;
-    // tmpWallPos.Z = 0;
-
-    // auto placeTubesByCount = [&](uint32 cnt , const FRotator &rot){
-    //      for (uint32 i = 1; i < cnt; ++i) {
-    //           tmpWallPos.X = -1 * (wallOffset + 525 + GridSize * i);
-    //           addMeshInstance(Tubes, rot , rot , tmpWallPos);
-    //           placePointLight(1.f , GridSize, rot, tmpWallPos);
-    //      }
-    // };
-
-    // for ( FRotator  r : tmpRotatorArr) {
-    //     //UE_LOG(LogTemp, Warning, TEXT("Idx %d ....%hs") , tmpRotatorArr.IndexOfByKey(r), __func__);
-    //      placeTubesByCount(tmpTubeCntPerSideArr[tmpRotatorArr.IndexOfByKey(r)], r);
-    // }
-
 }
 
 
@@ -352,9 +355,12 @@ template<class T>
 }
 
 
+
+
 void AMapRoom::placeTubeCollisionBox(const FVector &extent, const FRotator &rot, const FVector &tran, const FRotator &sideRot)
 {
     UBoxComponent* bc = placeComp<UBoxComponent>( FTransform( rot + sideRot, rot.RotateVector(tran))  );
     bc->SetCollisionProfileName(TEXT("BlockAll"));
     bc->SetBoxExtent(extent);
 }
+

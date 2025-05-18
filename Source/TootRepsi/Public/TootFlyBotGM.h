@@ -17,10 +17,18 @@ class TOOTREPSI_API ATootFlyBotGM : public AGameModeBase
   public:
   explicit ATootFlyBotGM(const FObjectInitializer& ObjectInitializer) ;
 
-  virtual void SetPlayerDefaults(APawn *PlayerPawn) override;
+    virtual void InitGame(const FString &MapName, const FString &Options, FString &ErrorMessage) override;
+   virtual void SetPlayerDefaults(APawn *PlayerPawn) override;
+    virtual void PreLogin(const FString &Options, const FString &Address, const FUniqueNetIdRepl &UniqueId, FString &ErrorMessage) override;
+
+    virtual void PostLogin(APlayerController *NewPlayer) override;
+
+    protected:
+    virtual FString InitNewPlayer(APlayerController *NewPlayerController, const FUniqueNetIdRepl &UniqueId, const FString &Options, const FString &Portal) override;
 
 
     private:
+
 
 #if WITH_GAMEPLAY_DEBUGGER
    // UFUNCTION()
@@ -28,4 +36,14 @@ class TOOTREPSI_API ATootFlyBotGM : public AGameModeBase
     void tootDebugKeyFunc1();
 #endif
 
-};
+
+
+
+    private:
+
+    TArray<class APlayerStart*> playerStartsArr;
+
+
+
+
+ };

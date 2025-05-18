@@ -31,6 +31,8 @@ void APlayerBotController::SetupInputComponent()
     RotateIA->ValueType = EInputActionValueType::Axis3D;
     FreeFlyIA = NewObject<UInputAction>(this );
     FireIA = NewObject<UInputAction>(this );
+    SprintArmIA = NewObject<UInputAction>(this );
+    SprintArmIA->ValueType = EInputActionValueType::Axis1D;
 
     mapInputKey(PlayerIMC, MoveIA, EKeys::W);
     mapInputKey(PlayerIMC, MoveIA, EKeys::S ,true);
@@ -45,8 +47,10 @@ void APlayerBotController::SetupInputComponent()
     mapInputKey(PlayerIMC, RotateIA, EKeys::Q ,true, true, EInputAxisSwizzle::ZYX);
     //
     mapInputKey(PlayerIMC, FreeFlyIA, EKeys::F);
+    mapInputKey(PlayerIMC, SprintArmIA, EKeys::MouseWheelAxis);
 
 
+    //
     mapInputKey(PlayerIMC, FireIA, EKeys::LeftMouseButton  );
 
 
