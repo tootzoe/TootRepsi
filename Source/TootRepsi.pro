@@ -52,7 +52,9 @@ DISTFILES += \
     TootRepsiServer.Target.cs
 
 HEADERS += \
+    TootRepsi/FlybotBasicShot.h \
     TootRepsi/PrjLog.h \
+    TootRepsi/Public/MainPlayerHUD.h \
     TootRepsi/Public/MapRoom.h \
     TootRepsi/Public/PlayerBotController.h \
     TootRepsi/Public/PlayerBotPawn.h \
@@ -63,6 +65,8 @@ HEADERS += \
     TootRepsi/TootRepsi.h
 
 SOURCES += \
+    TootRepsi/FlybotBasicShot.cpp \
+    TootRepsi/Private/MainPlayerHUD.cpp \
     TootRepsi/Private/MapRoom.cpp \
     TootRepsi/Private/PlayerBotController.cpp \
     TootRepsi/Private/PlayerBotPawn.cpp \

@@ -72,9 +72,30 @@ public:
     uint32 MoveWithHitMax;
     UPROPERTY(EditAnywhere, Category="TOOT")
     float SpeedCheckInterval;
+    //
+    UPROPERTY( Replicated  )
+    bool bCanShoot;
+
+    UPROPERTY(EditAnywhere, Category="TOOT")
+    float ShootingInterval;
 
 
+    //
+    UPROPERTY(EditAnywhere, Category="TOOT")
+    FVector MuzzleOffset;
+    UPROPERTY(EditAnywhere, Category="TOOT")
+    TSubclassOf<class AFlybotBasicShot> ShotSubClass;
+    //
+    UPROPERTY(EditAnywhere, Category="TOOT")
+    TSubclassOf<class UMainPlayerHUD> MainPlayerClass;
+    UPROPERTY( )
+    class UMainPlayerHUD* MainPlayerHUD;
 
+    //
+    UPROPERTY(EditAnywhere, Category="TOOT")
+    float MaxHealth;
+    UPROPERTY(ReplicatedUsing = OnRepHealth )
+    float Health;
 
 
 
@@ -88,12 +109,26 @@ public:
 
     UFUNCTION(Server, Unreliable, Category = "TOOT")
     void Svr_UpdPawnTransform(FTransform Transform);
+    UFUNCTION(Server, Reliable, Category = "TOOT")
+    void Svr_UpdShooting(bool bNewShooting);
+    //
     UFUNCTION(Client, Unreliable, Category = "TOOT")
     void Cli_UpdPawnTransform(FTransform Transform);
 
+    UFUNCTION( )
+    void OnRepHealth();
+
+
+
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const override;
+
+    void updHealth(float healthDelta);
+
+
 protected:
     // Called when the game starts or when spawned
-  //  virtual void BeginPlay() override;
+     virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
     private:
 
@@ -101,7 +136,7 @@ protected:
     void botMove(const struct FInputActionValue& val);
     void botRotate(const struct FInputActionValue& val);
     void botFreeFly();
-    void botFire( );
+    void botFire(const FInputActionValue &val);
     void botSpringArmChged( const struct FInputActionValue& val );
 	
 
@@ -117,8 +152,20 @@ protected:
     uint32 speedCheckFrameCnt;
     float speedCheckLastTS;
 
-	
-};
+    float shootingLastTS;
+
+    //
+    UPROPERTY(EditAnywhere, Category="TOOT")
+    float MaxPower;
+    float Power;
+    UPROPERTY(EditAnywhere, Category="TOOT")
+    float PowerRegenerateRate;
+    void RegeneratePower();
+
+    void tryShooting();
+
+
+ };
 
 
 

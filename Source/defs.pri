@@ -70,13 +70,15 @@ DEFINES += "COLLECTIONMANAGER_API="
 DEFINES += "LogTemp" "Warning"
 DEFINES += "BlueprintAuthorityOnly" "BlueprintCosmetic" "BlueprintNativeEvent"
 DEFINES += "Client" "CustomThunk" "Exec" "CallInEditor"
+DEFINES += "DOREPLIFETIME_ACTIVE_OVERRIDE" "DOREPLIFETIME_CONDITION" "DOREPLIFETIME"
+DEFINES += "Replicated" "ReplicatedUsing"
 DEFINES += "NetMulticast" "Reliable" "Unreliable" "WithValidation"
 DEFINES += "ServiceResponse" "Server" "SealedEvent" "ServiceRequest"
 DEFINES += "BlueprintType" "Blueprintable" "BlueprintPure" "BlueprintImplementableEvent"
 DEFINES += "BlueprintAssignable" "BlueprintInternalUseOnly" "EditAnywhere" "EditDefaultsOnly"
 DEFINES += "VisibleAnywhere" "BlueprintReadOnly"
 ##
-DEFINES += "Transient"
+DEFINES += "Transient" "BindWidget"
 ##
 ##  Because this macro unfriend with QtCreater , so we redefined they to empty in this editor....
 DEFINES += "checkf" "check" "checkAtCompileTime" "checkCode" "checkfSlow" "checkLockFreePointerList"

@@ -17,9 +17,12 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
+#include "Net/UnrealNetwork.h"
 
 
 #include "PlayerBotController.h"
+#include "TootRepsi/FlybotBasicShot.h"
+#include "MainPlayerHUD.h"
 
 #include "../PrjLog.h"
 
@@ -40,6 +43,7 @@ APlayerBotPawn::APlayerBotPawn()
     //head
     PawnHead = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Head"));
     PawnHead->SetupAttachment(PawnBody );
+
 
 
     //spring arm
@@ -77,22 +81,66 @@ APlayerBotPawn::APlayerBotPawn()
      //
      SpeedCheckInterval = .5f ; // 0.5 second
      speedCheckLastTS = 0.f ;
+     //
+     MuzzleOffset = FVector(300.f ,0, 0 );
+     ShotSubClass = AFlybotBasicShot::StaticClass();
+     //
+     bCanShoot = false;
+     ShootingInterval = .2f;
+     //
+     MainPlayerClass = nullptr;
+     MainPlayerHUD = nullptr;
+     //
+     MaxHealth = 100.f;
+     Health = MaxHealth;
+     //
+     MaxPower = 25.f;
+     Power = MaxPower;
+     PowerRegenerateRate = 1.f;
 
+     // We should match this to FlybotShot (life span * speed , and Squared) so they are destroyed at the same distance.
+     NetCullDistanceSquared = 1600000000.f;
      SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+     //
 
 }
 
-// Called when the game starts or when spawned
-// void APlayerBotPawn::BeginPlay()
-// {
-// 	Super::BeginPlay();
-	
-// }
+//Called when the game starts or when spawned
+void APlayerBotPawn::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if(IsLocallyControlled() && MainPlayerClass){
+        APlayerBotController* pc = GetController<APlayerBotController>();
+        check(pc);
+        MainPlayerHUD = CreateWidget<UMainPlayerHUD>(pc, MainPlayerClass);
+        check(MainPlayerHUD);
+        MainPlayerHUD->AddToPlayerScreen();
+        MainPlayerHUD->updHealth(Health , MaxHealth);
+        MainPlayerHUD->updPower(Power, MaxPower);
+    }
+}
+
+void APlayerBotPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    Super::EndPlay(EndPlayReason);
+
+    if(MainPlayerHUD){
+        MainPlayerHUD->RemoveFromParent();
+        MainPlayerHUD = nullptr;
+    }
+}
+
 
 // Called every frame
 void APlayerBotPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+    RegeneratePower();
+
+    tryShooting();
 
 
     if(GetNetMode() == ENetMode::NM_DedicatedServer)
@@ -146,6 +194,7 @@ void APlayerBotPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     tmpEIC->BindAction(tmpPC->RotateIA, ETriggerEvent::Triggered, this, &APlayerBotPawn::botRotate );
     tmpEIC->BindAction(tmpPC->FreeFlyIA, ETriggerEvent::Started, this, &APlayerBotPawn::botFreeFly );
     tmpEIC->BindAction(tmpPC->FireIA, ETriggerEvent::Started, this, &APlayerBotPawn::botFire );
+    tmpEIC->BindAction(tmpPC->FireIA, ETriggerEvent::Completed, this, &APlayerBotPawn::botFire );
     tmpEIC->BindAction(tmpPC->SprintArmIA, ETriggerEvent::Triggered, this, &APlayerBotPawn::botSpringArmChged );
 
 
@@ -158,6 +207,20 @@ void APlayerBotPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     tmpSubSys->ClearAllMappings();
     tmpSubSys->AddMappingContext(tmpPC->PlayerIMC, 0);
 
+}
+
+void APlayerBotPawn::OnRepHealth()
+{
+    if(MainPlayerHUD){
+        MainPlayerHUD->updHealth(Health, MaxHealth);
+    }
+}
+
+
+
+void APlayerBotPawn::Svr_UpdShooting_Implementation (bool bNewShooting)
+{
+    bCanShoot = bNewShooting;
 }
 
 void APlayerBotPawn::Cli_UpdPawnTransform_Implementation(FTransform Transform)
@@ -182,7 +245,7 @@ void APlayerBotPawn::Svr_UpdPawnTransform_Implementation(FTransform Transform)
             FVector averageVec = speedCheckPosSum / speedCheckFrameCnt;
             float tmpDist = FVector::Distance(speedcheckLastPos , averageVec);
             float tmpSpeed = tmpDist / (currTS - speedCheckLastTS); // 0.5 second speed;
-            UE_LOG(LogTootRepsi, Warning, TEXT("Client speed calculated: speed: %.3f >> frame count: %d .... ") ,tmpSpeed, speedCheckFrameCnt);
+           // UE_LOG(LogTootRepsi, Warning, TEXT("Client speed calculated: speed: %.3f >> frame count: %d .... ") ,tmpSpeed, speedCheckFrameCnt);
 
             speedCheckLastTS = currTS;
             speedCheckPosSum = FVector::ZeroVector;
@@ -203,9 +266,6 @@ void APlayerBotPawn::Svr_UpdPawnTransform_Implementation(FTransform Transform)
     // float distance = FVector::Dist(GetRootComponent()->GetRelativeLocation(), Transform.GetTranslation());
     // float speed = distance / GetWorld()->GetDeltaSeconds();
     // UE_LOG(LogTootRepsi, Warning, TEXT("Client speed : %s = %.3f >>>>  %.3f ....") , *Controller->GetName() , speed, GetWorld()->GetDeltaSeconds() );
-
-
-
 
 
     FTransform oldTsf = GetRootComponent()->GetRelativeTransform();
@@ -265,9 +325,14 @@ void APlayerBotPawn::botFreeFly( )
     bFreeFly= !bFreeFly;
 }
 
-void APlayerBotPawn::botFire()
+void APlayerBotPawn::botFire(const FInputActionValue& val)
 {
-   UE_LOG(LogTemp, Warning, TEXT(" ...%hs")   ,   __func__);
+  // UE_LOG(LogTemp, Warning, TEXT("val:  %d  ...%hs")   , val[0] > 0   ,   __func__);
+
+   bCanShoot = val[0] > 0;
+
+   Svr_UpdShooting(bCanShoot);
+
 }
 
 void APlayerBotPawn::botSpringArmChged(const FInputActionValue &val)
@@ -278,4 +343,68 @@ void APlayerBotPawn::botSpringArmChged(const FInputActionValue &val)
     tmpVal += PawnSpringArm->TargetArmLength;
     PawnSpringArm->TargetArmLength  = FMath::Clamp(tmpVal , SprintArmLenMin, SprintArmLenMax);
 }
+
+void APlayerBotPawn::RegeneratePower()
+{
+    Power = FMath::Clamp(Power + PowerRegenerateRate * GetWorld()->DeltaTimeSeconds , 0.f , MaxPower);
+
+    if(MainPlayerHUD){
+        MainPlayerHUD->updPower(Power, MaxPower);
+    }
+
+}
+
+void APlayerBotPawn::tryShooting()
+{
+    float currTS  = GetWorld()->GetRealTimeSeconds();
+
+    float powerDelta = Cast<AFlybotBasicShot>(ShotSubClass->GetDefaultObject())->PowerDelta;
+
+    if(!bCanShoot || currTS - shootingLastTS < ShootingInterval || Power + powerDelta <= 0){
+        return;
+    }
+
+
+
+        UE_LOG(LogTootRepsi, Warning, TEXT("Shot Spawned %s , %.3f , %s , %s") ,
+               *GetName(), currTS, IsNetMode(NM_Client) ? TEXT("Client") : TEXT("Server") , Controller ? TEXT("Controlled") : TEXT("Simulated") );
+
+        FTransform t = PawnBody->GetComponentTransform();
+        FRotator r = t.Rotator();
+        FVector v = t.GetTranslation() + r.RotateVector(MuzzleOffset);
+        AFlybotBasicShot* shot =   GetWorld()->SpawnActor<AFlybotBasicShot>(ShotSubClass, v, r);
+
+        if(shot){
+            shootingLastTS = currTS;
+            shot->SetInstigator( this);
+            Power += powerDelta;
+            if(MainPlayerHUD){
+                MainPlayerHUD->updPower(Power, MaxPower);
+            }
+        }
+
+
+}
+
+
+
+void APlayerBotPawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME_CONDITION(APlayerBotPawn,  bCanShoot , COND_SimulatedOnly);
+    DOREPLIFETIME_CONDITION(APlayerBotPawn,  Health , COND_OwnerOnly);
+}
+
+void APlayerBotPawn::updHealth(float healthDelta)
+{
+    Health = FMath::Clamp(Health + healthDelta, 0.f , MaxHealth);
+
+    if(Health == 0.f){
+        UE_LOG(LogTootRepsi, Warning, TEXT("Bot dead....%hs") , __func__);
+    }
+
+}
+
+
 

@@ -266,7 +266,9 @@ INCLUDEPATH += $$UESRCROOT/../Plugins/Runtime/ChunkDownloader/Source/Public
 INCLUDEPATH += $$UESRCROOT/../Plugins/Online/OnlineSubsystem/Source/Public
 INCLUDEPATH += $$UESRCROOT/../Plugins/Online/OnlineServices/Source/OnlineServicesInterface/Public
 INCLUDEPATH += $$UESRCROOT/../Plugins/Online/OnlineSubsystemUtils/Source/OnlineSubsystemUtils/Public
-
+##
+## Niagara
+INCLUDEPATH += $$UESRCROOT/../Plugins/FX/Niagara/Source/Niagara/Public
 
 ## if have problem , try to use 'Intermediate' folder files
 #
