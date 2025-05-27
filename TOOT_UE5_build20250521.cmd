@@ -37,7 +37,7 @@ echo %PRJNAME%
 echo %TARGETNAME%
 
 
-echo "Raw build++++==== UE build UnrealEditor Dlls for:  %PRJNAME%.uproject, Target=%TARGETNAME%   ====++++"
+echo "++++==== UE build UnrealEditor Dlls for:  %PRJNAME%.uproject, Target=%TARGETNAME%   ====++++"
 
 ::  UE-5.5x
 ::call %UE_FOLDER%/Engine/Build/BatchFiles/Build.bat -Target="%TARGETNAME% Win64 Development" -project="%PRJNAMEPATH%"  -WaitMutex -FromMsBuild -architecture=x64

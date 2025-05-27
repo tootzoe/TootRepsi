@@ -30,6 +30,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h"
 //
 #include "PlayerBotPawn.h"
 
@@ -39,7 +40,7 @@ AFlybotBasicShot::AFlybotBasicShot()
 {
     PrimaryActorTick.bCanEverTick = true;
 
-    HealthDelta = -1.f;
+    HealthDelta = -12.f;
     PowerDelta = -1.f;
 
 
@@ -54,6 +55,7 @@ AFlybotBasicShot::AFlybotBasicShot()
 
     FlyFXComp = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Niagara"));
     FlyFXComp->SetupAttachment(SphereSceneRoot  );
+    FlyFXComp->SetAgeUpdateMode(ENiagaraAgeUpdateMode::TickDeltaTime);
 
 
     MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Movement"));
@@ -61,7 +63,7 @@ AFlybotBasicShot::AFlybotBasicShot()
     MovementComp->MaxSpeed = 20000.f;
     MovementComp->ProjectileGravityScale =  0.f;
     //
-    InitialLifeSpan = 2.f;
+    InitialLifeSpan = 28.f;
 
 }
 
@@ -70,11 +72,34 @@ AFlybotBasicShot::AFlybotBasicShot()
 void AFlybotBasicShot::BeginPlay()
 {
     Super::BeginPlay();
+
+
+
+
+
+
 }
 
 void AFlybotBasicShot::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+
+    if(GetInstigator()){
+      float dist = FVector::Dist(GetActorLocation(), GetInstigator()->GetActorLocation());
+     // UE_LOG(LogTootRepsi, Warning, TEXT("Instigator: %s.... dist: %.3f ,  %f")  , *GetInstigator()->GetName() ,dist , DeltaTime);
+
+      CustomTimeDilation =   1.f -  (dist / 3000.f );
+    //  FlyFXComp->SetCustomTimeDilation(  FMath::Clamp (  1.f -  (dist / 3000.f  ) , .9f , 1.f) );
+
+     // FlyFXComp->AdvanceSimulationByTime( 100.f ,  100.f);
+      FlyFXComp->SetPaused(false);
+      FlyFXComp->AdvanceSimulation(1, .002f);
+      FlyFXComp->SetPaused(true);
+
+     // UGameplayStatics::SetGlobalTimeDilation(GetWorld(),  1.f -  (dist / 3000.f ));
+
+    }
+
 }
 
 void AFlybotBasicShot::OnHit(UPrimitiveComponent *HitComponent, AActor *OtherActor,
@@ -86,6 +111,7 @@ void AFlybotBasicShot::OnHit(UPrimitiveComponent *HitComponent, AActor *OtherAct
     APlayerBotPawn* targetPawn = Cast<APlayerBotPawn>(OtherActor);
 
     if(targetPawn && targetPawn != shooter && targetPawn->GetLocalRole() == ROLE_Authority){
+        UE_LOG(LogTootRepsi, Warning, TEXT("Health delta : %f....%hs") , HealthDelta,  __func__);
       targetPawn->updHealth(HealthDelta);
     }
 

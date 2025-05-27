@@ -82,3 +82,13 @@ static  void mapInputKey(UInputMappingContext* imc, UInputAction* ia ,
     }
 
 }
+
+
+bool APlayerBotController::InputTouch(const FInputDeviceId DeviceId, uint32 Handle, ETouchType::Type Type,
+                                      const FVector2D &TouchLocation, float Force, uint32 TouchpadIndex,
+                                      const uint64 Timestamp)
+{
+
+
+    return Super::InputTouch(DeviceId, Handle, Type , TouchLocation, Force , TouchpadIndex , Timestamp);
+}

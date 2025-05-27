@@ -125,6 +125,22 @@ public:
     void updHealth(float healthDelta);
 
 
+    //
+    UFUNCTION()
+        void OnOverlapBegin1(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+        /** called when something leaves the sphere component */
+        UFUNCTION()
+        void OnOverlapEnd1(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+
+        UFUNCTION()
+        void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
+                   FVector NormalImpulse, const FHitResult& Hit);
+
+      //  UFUNCTION()
+      //  void OnHit2(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 protected:
     // Called when the game starts or when spawned
      virtual void BeginPlay() override;

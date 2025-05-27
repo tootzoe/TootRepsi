@@ -18,6 +18,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "Net/UnrealNetwork.h"
+#include  "Engine/StaticMesh.h"
+#include  "PhysicsEngine/BodySetup.h"
 
 
 #include "PlayerBotController.h"
@@ -37,6 +39,23 @@ APlayerBotPawn::APlayerBotPawn()
     PawnRootDummy = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PawnRootDummy"));
     SetRootComponent(PawnRootDummy);
     PawnRootDummy->SetVisibleFlag(false);
+
+    // PawnRootDummy->OnComponentBeginOverlap.AddDynamic(this, &APlayerBotPawn::OnOverlapBegin1);
+    // PawnRootDummy->OnComponentEndOverlap.AddDynamic(this, &APlayerBotPawn::OnOverlapEnd1);
+    // PawnRootDummy->OnComponentHit. AddDynamic(this, &APlayerBotPawn::OnHit);
+
+#if 0
+    // useless , tootzoe
+    TScriptDelegate<FWeakObjectPtr> onHitFunc;
+    onHitFunc.BindUFunction(this, "OnHit2");
+
+    PawnRootDummy->OnComponentBeginOverlap.Add(onHitFunc);
+    PawnRootDummy->SetGenerateOverlapEvents(true);
+
+#endif
+
+
+
     //body
     PawnBody = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Body"));
     PawnBody->SetupAttachment(PawnRootDummy );
@@ -98,8 +117,8 @@ APlayerBotPawn::APlayerBotPawn()
      Power = MaxPower;
      PowerRegenerateRate = 1.f;
 
-     // We should match this to FlybotShot (life span * speed , and Squared) so they are destroyed at the same distance.
-     NetCullDistanceSquared = 1600000000.f;
+     // We should match this to FlybotShot (life span * speed , and Squared) so they are destroyed at the same distance.   
+     SetNetCullDistanceSquared(1600000000.f);
      SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
      //
@@ -120,6 +139,11 @@ void APlayerBotPawn::BeginPlay()
         MainPlayerHUD->updHealth(Health , MaxHealth);
         MainPlayerHUD->updPower(Power, MaxPower);
     }
+
+
+    // PawnRootDummy->OnComponentBeginOverlap.AddDynamic(this, &APlayerBotPawn::OnOverlapBegin1); // not trigged
+    // PawnRootDummy->OnComponentEndOverlap.AddDynamic(this, &APlayerBotPawn::OnOverlapEnd1);  // not trigged
+     PawnRootDummy->OnComponentHit. AddDynamic(this, &APlayerBotPawn::OnHit);
 }
 
 void APlayerBotPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -323,6 +347,24 @@ void APlayerBotPawn::botRotate(const FInputActionValue &val)
 void APlayerBotPawn::botFreeFly( )
 {
     bFreeFly= !bFreeFly;
+
+#if 0
+    // get UStaticMesh from UStaticMeshComponent,
+    // get Elements from UStaticMesh : mesh->GetBodySetup()->AggGeom.GetElement(0);
+
+    int32 elemCnt = PawnRootDummy->GetStaticMesh()->GetBodySetup()->AggGeom.GetElementCount();
+
+     for(int32 i = 0 ; i < elemCnt ; i ++){
+
+         FKShapeElem const * elem = PawnRootDummy->GetStaticMesh()->GetBodySetup()->AggGeom.GetElement(i);
+
+         FVector vec =   elem->GetTransform().GetLocation();
+
+         UE_LOG(LogTemp, Warning, TEXT("Vec.x = %.3f , y= %.3f , z= %.3f ") ,vec.X , vec.Y, vec.Z);
+
+     }
+#endif
+
 }
 
 void APlayerBotPawn::botFire(const FInputActionValue& val)
@@ -399,12 +441,60 @@ void APlayerBotPawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLi
 void APlayerBotPawn::updHealth(float healthDelta)
 {
     Health = FMath::Clamp(Health + healthDelta, 0.f , MaxHealth);
+    if(MainPlayerHUD){
+        MainPlayerHUD->updHealth(Health, MaxHealth);
+    }
 
     if(Health == 0.f){
         UE_LOG(LogTootRepsi, Warning, TEXT("Bot dead....%hs") , __func__);
     }
 
+   // CustomTimeDilation
+
 }
+
+void APlayerBotPawn::OnOverlapBegin1(UPrimitiveComponent *OverlappedComp, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
+{
+
+    UE_LOG(LogTemp, Warning, TEXT("msg....%hs") , __func__);
+}
+
+void APlayerBotPawn::OnOverlapEnd1(UPrimitiveComponent *OverlappedComp, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex)
+{
+    UE_LOG(LogTemp, Warning, TEXT("msg....%hs") , __func__);
+}
+
+void APlayerBotPawn::OnHit(UPrimitiveComponent *HitComponent, AActor *OtherActor,
+                           UPrimitiveComponent *OtherComponent, FVector NormalImpulse, const FHitResult &Hit)
+{
+     // UE_LOG(LogTemp, Warning, TEXT("msg....hit comp: %s  , other actor: %s , %s  ,  idx: %d") ,
+     //        *HitComponent->GetName() , *OtherActor->GetName(), *OtherComponent->GetName(),
+     //        Hit.ElementIndex
+     //        );
+
+
+    int32 elemCnt = PawnRootDummy->GetStaticMesh()->GetBodySetup()->AggGeom.GetElementCount();
+
+    float nearestDist = UE_FLOAT_HUGE_DISTANCE;
+    FKShapeElem   * tmpElem = nullptr;
+
+     for(int32 i = 0 ; i < elemCnt ; i ++){
+          FKShapeElem   * const elem = PawnRootDummy->GetStaticMesh()->GetBodySetup()->AggGeom.GetElement(i);
+
+         float tmpDist = FVector::Distance( elem->GetTransform().GetLocation() + PawnRootDummy->GetComponentLocation() , Hit.ImpactPoint);
+
+         if(tmpDist < nearestDist){
+             nearestDist = tmpDist;
+             tmpElem = elem;
+         }
+     }
+
+     if(tmpElem){
+          UE_LOG(LogTemp, Warning, TEXT(" collison obj is : %s") , *tmpElem->GetName().ToString()  );
+     }
+}
+
+
 
 
 

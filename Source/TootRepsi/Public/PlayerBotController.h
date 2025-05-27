@@ -16,6 +16,9 @@ class TOOTREPSI_API APlayerBotController : public APlayerController
 
     public:
 
+    // APlayerController interface
+    public:
+    virtual bool InputTouch(const FInputDeviceId DeviceId, uint32 Handle, ETouchType::Type Type, const FVector2D &TouchLocation, float Force, uint32 TouchpadIndex, const uint64 Timestamp) override;
 
 
 
@@ -44,4 +47,5 @@ class TOOTREPSI_API APlayerBotController : public APlayerController
 
 
 
-};
+
+ };
