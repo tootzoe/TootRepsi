@@ -96,6 +96,9 @@ public:
     float MaxHealth;
     UPROPERTY(ReplicatedUsing = OnRepHealth )
     float Health;
+    //
+    UPROPERTY( ReplicatedUsing=OnRep_Color,  BlueprintReadOnly, Transient, Category="TOOT")
+    FLinearColor currColor;
 
 
 
@@ -117,6 +120,8 @@ public:
 
     UFUNCTION( )
     void OnRepHealth();
+    UFUNCTION( )
+    void OnRep_Color();
 
 
 
@@ -140,6 +145,9 @@ public:
 
       //  UFUNCTION()
       //  void OnHit2(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+        public:
+        void auth_setPlayerColor(const FLinearColor& cr);
 
 protected:
     // Called when the game starts or when spawned

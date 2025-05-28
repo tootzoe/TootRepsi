@@ -22,6 +22,7 @@
 #include  "PhysicsEngine/BodySetup.h"
 
 
+#include "TootFlyBotGM.h"
 #include "PlayerBotController.h"
 #include "TootRepsi/FlybotBasicShot.h"
 #include "MainPlayerHUD.h"
@@ -129,6 +130,7 @@ APlayerBotPawn::APlayerBotPawn()
 void APlayerBotPawn::BeginPlay()
 {
     Super::BeginPlay();
+
 
     if(IsLocallyControlled() && MainPlayerClass){
         APlayerBotController* pc = GetController<APlayerBotController>();
@@ -238,6 +240,11 @@ void APlayerBotPawn::OnRepHealth()
     if(MainPlayerHUD){
         MainPlayerHUD->updHealth(Health, MaxHealth);
     }
+}
+
+void APlayerBotPawn::OnRep_Color()
+{
+    UE_LOG(LogTemp, Warning, TEXT("msg....%hs") , __func__);
 }
 
 
@@ -408,8 +415,8 @@ void APlayerBotPawn::tryShooting()
 
 
 
-        UE_LOG(LogTootRepsi, Warning, TEXT("Shot Spawned %s , %.3f , %s , %s") ,
-               *GetName(), currTS, IsNetMode(NM_Client) ? TEXT("Client") : TEXT("Server") , Controller ? TEXT("Controlled") : TEXT("Simulated") );
+        // UE_LOG(LogTootRepsi, Warning, TEXT("Shot Spawned %s , %.3f , %s , %s") ,
+        //        *GetName(), currTS, IsNetMode(NM_Client) ? TEXT("Client") : TEXT("Server") , Controller ? TEXT("Controlled") : TEXT("Simulated") );
 
         FTransform t = PawnBody->GetComponentTransform();
         FRotator r = t.Rotator();
@@ -464,6 +471,9 @@ void APlayerBotPawn::OnOverlapEnd1(UPrimitiveComponent *OverlappedComp, AActor *
     UE_LOG(LogTemp, Warning, TEXT("msg....%hs") , __func__);
 }
 
+
+
+
 void APlayerBotPawn::OnHit(UPrimitiveComponent *HitComponent, AActor *OtherActor,
                            UPrimitiveComponent *OtherComponent, FVector NormalImpulse, const FHitResult &Hit)
 {
@@ -490,8 +500,16 @@ void APlayerBotPawn::OnHit(UPrimitiveComponent *HitComponent, AActor *OtherActor
      }
 
      if(tmpElem){
-          UE_LOG(LogTemp, Warning, TEXT(" collison obj is : %s") , *tmpElem->GetName().ToString()  );
+          UE_LOG(LogTemp, Warning, TEXT(" collision obj is : %s") , *tmpElem->GetName().ToString()  );
      }
+}
+
+void APlayerBotPawn::auth_setPlayerColor(const FLinearColor &cr)
+{
+    checkf(HasAuthority() , TEXT("Error: auth_setPlayerColor() called on client !!...."));
+    currColor = cr;
+
+    OnRep_Color();
 }
 
 

@@ -84,6 +84,8 @@ void AFlybotBasicShot::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
+#if 0
+    //test changing niagara time dilation....
     if(GetInstigator()){
       float dist = FVector::Dist(GetActorLocation(), GetInstigator()->GetActorLocation());
      // UE_LOG(LogTootRepsi, Warning, TEXT("Instigator: %s.... dist: %.3f ,  %f")  , *GetInstigator()->GetName() ,dist , DeltaTime);
@@ -99,6 +101,8 @@ void AFlybotBasicShot::Tick(float DeltaTime)
      // UGameplayStatics::SetGlobalTimeDilation(GetWorld(),  1.f -  (dist / 3000.f ));
 
     }
+#endif
+
 
 }
 

@@ -19,7 +19,7 @@
 
 #include "GameplayDebugger.h"
 #include "GameplayDebuggerPlayerManager.h"
-
+#include "GameDspHUD.h"
 
 
 ATootFlyBotGM::ATootFlyBotGM(const FObjectInitializer &ObjectInitializer) : Super(ObjectInitializer)
@@ -27,6 +27,18 @@ ATootFlyBotGM::ATootFlyBotGM(const FObjectInitializer &ObjectInitializer) : Supe
     PlayerControllerClass = APlayerBotController::StaticClass();
 
     DefaultPawnClass = APlayerBotPawn::StaticClass();
+
+    HUDClass = AGameDspHUD::StaticClass();
+
+
+    PlayerColors.Add(FColor::Red);
+    PlayerColors.Add(FColor::Green);
+    PlayerColors.Add(FColor::Blue);
+    PlayerColors.Add(FColor::Yellow);
+    PlayerColors.Add(FColor::Cyan);
+
+
+    lastPlayerCrIdx = -1;
 
 }
 
@@ -52,7 +64,20 @@ void ATootFlyBotGM::SetPlayerDefaults(APawn *PlayerPawn)
 {
     Super::SetPlayerDefaults(PlayerPawn);
 
+    APlayerBotPawn* newPawn = Cast<APlayerBotPawn>(PlayerPawn);
+    if(newPawn){
+        int32 crIdx = (lastPlayerCrIdx + 1) % PlayerColors.Num();
 
+        if(PlayerColors.IsValidIndex(crIdx)){
+            newPawn->auth_setPlayerColor(PlayerColors[crIdx]);
+
+            lastPlayerCrIdx = crIdx;
+        }
+
+    }
+
+
+//  for testing adding debug key
 #if WITH_GAMEPLAY_DEBUGGER
 
    // GetWorld()->GetTimerManager().SetTimer(this, );

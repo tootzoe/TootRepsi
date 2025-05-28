@@ -53,6 +53,7 @@ DISTFILES += \
 
 HEADERS += \
     TootRepsi/FlybotBasicShot.h \
+    TootRepsi/Private/GameDspHUD.h \
     TootRepsi/PrjLog.h \
     TootRepsi/Public/MainPlayerHUD.h \
     TootRepsi/Public/MapRoom.h \
@@ -66,6 +67,7 @@ HEADERS += \
 
 SOURCES += \
     TootRepsi/FlybotBasicShot.cpp \
+    TootRepsi/Private/GameDspHUD.cpp \
     TootRepsi/Private/MainPlayerHUD.cpp \
     TootRepsi/Private/MapRoom.cpp \
     TootRepsi/Private/PlayerBotController.cpp \

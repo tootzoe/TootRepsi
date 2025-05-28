@@ -27,6 +27,14 @@ class TOOTREPSI_API ATootFlyBotGM : public AGameModeBase
     virtual FString InitNewPlayer(APlayerController *NewPlayerController, const FUniqueNetIdRepl &UniqueId, const FString &Options, const FString &Portal) override;
 
 
+    public:
+    UPROPERTY(BlueprintReadWrite, EditAnywhere,  Category="TOOT")
+    TArray<FLinearColor> PlayerColors;
+
+
+
+
+
     private:
 
 
@@ -43,7 +51,7 @@ class TOOTREPSI_API ATootFlyBotGM : public AGameModeBase
 
     TArray<class APlayerStart*> playerStartsArr;
 
-
+    int32 lastPlayerCrIdx;
 
 
  };
