@@ -8,7 +8,14 @@
 #include "InputMappingContext.h"
 #include "InputCoreTypes.h"
 #include "InputModifiers.h"
+#include "GameFramework/TouchInterface.h"
+#include "Kismet/GameplayStatics.h"
 
+#include "GenericPlatform/GenericPlatformProcess.h"
+#include "GenericPlatform/GenericPlatformMisc.h"
+
+#include "TootRepsi/TootDefs.h"
+#include "PlayerBotPawn.h"
 
 
 
@@ -20,6 +27,22 @@ static void mapInputKey(UInputMappingContext* imc, UInputAction* ia ,
 void APlayerBotController::SetupInputComponent()
 {
     Super::SetupInputComponent();
+
+
+    UE_LOG(LogTemp, Warning, TEXT("APlayerBotController....%hs") , __func__);
+
+//#if TOOT_MOBILE
+
+    if(PawnTouchInterface){
+         ActivateTouchInterface(PawnTouchInterface);
+         UE_LOG(LogTemp, Warning, TEXT("PawnTouchInterface enabled....%hs") , __func__);
+    }else{
+        UE_LOG(LogTemp, Warning, TEXT("PawnTouchInterface nullptr....%hs") , __func__);
+    }
+
+//#endif
+
+
 
 
     PlayerIMC = NewObject<UInputMappingContext>(this );
@@ -91,4 +114,28 @@ bool APlayerBotController::InputTouch(const FInputDeviceId DeviceId, uint32 Hand
 
 
     return Super::InputTouch(DeviceId, Handle, Type , TouchLocation, Force , TouchpadIndex , Timestamp);
+}
+
+
+void APlayerBotController::BeginPlay()
+{
+    Super::BeginPlay();
+
+
+   // const APlayerBotPawn* pa =   GetPawn<APlayerBotPawn>();
+ #if 0
+     UTouchInterface* const ti = LoadObject<UTouchInterface>(this, TEXT("/Engine/MobileResources/HUD/DefaultVirtualJoysticks.DefaultVirtualJoysticks"));
+
+
+     if(IsValid(ti)){
+       // ActivateTouchInterface(pa->PawnTouchInterface);
+        ActivateTouchInterface(ti);
+    }
+#endif
+    // if(IsValid(pa) && pa->PawnTouchInterface){
+    //     UE_LOG(LogTemp, Warning, TEXT("pa okkkkkkkkkkkkk....%hs") , __func__);
+
+    //     ActivateTouchInterface(pa->PawnTouchInterface);
+
+    // }
 }

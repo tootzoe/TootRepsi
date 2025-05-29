@@ -33,7 +33,9 @@ public:
 
 
 
-    // input action
+    // input action    
+
+
     UPROPERTY(EditAnywhere, Category="TOOT")
     class UFloatingPawnMovement* FloatingMovement;
     // input action
@@ -99,7 +101,14 @@ public:
     //
     UPROPERTY( ReplicatedUsing=OnRep_Color,  BlueprintReadOnly, Transient, Category="TOOT")
     FLinearColor currColor;
+    //
+    // UPROPERTY(EditDefaultsOnly, Category="TOOT|Touch")
+    // class UTouchInterface* PawnTouchInterface;
 
+    UPROPERTY(EditDefaultsOnly, Category="TOOT|Touch")
+      TSoftObjectPtr<class UTouchInterface> PawnTouchInterface;
+    UPROPERTY(EditDefaultsOnly, Category="TOOT|Touch")
+    TSoftObjectPtr<class UTouchInterface> PawnTouchInterface2;
 
 
 public:	
@@ -187,6 +196,8 @@ protected:
     void RegeneratePower();
 
     void tryShooting();
+
+    void switchTouchInterface(int32 idx);
 
 
  };

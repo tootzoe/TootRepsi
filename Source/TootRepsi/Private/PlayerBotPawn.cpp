@@ -20,12 +20,17 @@
 #include "Net/UnrealNetwork.h"
 #include  "Engine/StaticMesh.h"
 #include  "PhysicsEngine/BodySetup.h"
+#include "GameFramework/TouchInterface.h"
+
+#include "UObject/ConstructorHelpers.h"
 
 
+#include "TootRepsi/TootDefs.h"
 #include "TootFlyBotGM.h"
 #include "PlayerBotController.h"
 #include "TootRepsi/FlybotBasicShot.h"
 #include "MainPlayerHUD.h"
+
 
 #include "../PrjLog.h"
 
@@ -33,6 +38,7 @@
 
 // Sets default values
 APlayerBotPawn::APlayerBotPawn()
+
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
@@ -54,6 +60,7 @@ APlayerBotPawn::APlayerBotPawn()
     PawnRootDummy->SetGenerateOverlapEvents(true);
 
 #endif
+
 
 
 
@@ -204,6 +211,16 @@ void APlayerBotPawn::Tick(float DeltaTime)
     }
 
 
+#if 0
+
+    static int32 toot = 1 ;
+    if(toot ++ % 150 == 0){
+        static int32 zoe = 0;
+        switchTouchInterface(zoe ++ % 2);
+    }
+
+#endif
+
 }
 
 // Called to bind functionality to input
@@ -211,10 +228,62 @@ void APlayerBotPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+
+     UE_LOG(LogTemp, Warning, TEXT("APlayerBotPawn....%hs") , __func__);
+
     UEnhancedInputComponent* tmpEIC = Cast<UEnhancedInputComponent>(PlayerInputComponent);
     APlayerBotController* tmpPC = Cast<APlayerBotController>(Controller);
 
     checkf(tmpEIC && tmpPC , TEXT("tmpEIC && playerController invalid...."));
+
+
+
+//#if TOOT_MOBILE
+
+    // FGenericPlatformMisc::get
+
+    // if(PawnTouchInterface){
+    //    // tmpPC->ActivateTouchInterface(SpecifiedTouchInterface);
+    //      UE_LOG(LogTemp, Warning, TEXT("PawnTouchInterface enabled....%hs") , __func__);
+    // }else{
+    //     UE_LOG(LogTemp, Warning, TEXT("PawnTouchInterface nullptr....%hs") , __func__);
+    // }
+
+//#endif
+
+
+
+#if 0
+
+    UTouchInterface* const ti = LoadObject<UTouchInterface>(this, TEXT("/Engine/MobileResources/HUD/DefaultVirtualJoysticks.DefaultVirtualJoysticks"));
+
+
+    if(IsValid(ti)){
+      // ActivateTouchInterface(pa->PawnTouchInterface);
+     tmpPC->  ActivateTouchInterface(ti);
+   }
+
+#endif
+
+    // if(PawnTouchInterface.Num() > 0 && IsValid( PawnTouchInterface[0]) ){
+    //     tmpPC->  ActivateTouchInterface( PawnTouchInterface[0] );
+    // }
+
+#if 0
+   const FSoftObjectPath &spath =  PawnTouchInterface.ToSoftObjectPath();
+
+   if(spath.IsValid()){
+
+       UTouchInterface *const ti = Cast<UTouchInterface>(spath.TryLoad());
+       check(ti);
+       tmpPC->  ActivateTouchInterface( ti );
+
+   }
+#else
+    switchTouchInterface(1);
+#endif
+
+
 
     tmpEIC->BindAction(tmpPC->MoveIA, ETriggerEvent::Triggered, this, &APlayerBotPawn::botMove );
     tmpEIC->BindAction(tmpPC->RotateIA, ETriggerEvent::Triggered, this, &APlayerBotPawn::botRotate );
@@ -232,6 +301,12 @@ void APlayerBotPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
     tmpSubSys->ClearAllMappings();
     tmpSubSys->AddMappingContext(tmpPC->PlayerIMC, 0);
+
+
+
+
+
+
 
 }
 
@@ -372,6 +447,12 @@ void APlayerBotPawn::botFreeFly( )
      }
 #endif
 
+#if 0
+     static int32 toot = 0 ;
+     switchTouchInterface(toot ++ % 2);
+
+#endif
+
 }
 
 void APlayerBotPawn::botFire(const FInputActionValue& val)
@@ -431,6 +512,40 @@ void APlayerBotPawn::tryShooting()
                 MainPlayerHUD->updPower(Power, MaxPower);
             }
         }
+}
+
+void APlayerBotPawn::switchTouchInterface(int32 idx)
+{
+    UE_LOG(LogTemp, Warning, TEXT("idx = %d ....%hs") , idx ,  __func__);
+
+     APlayerBotController* tmpPC = Cast<APlayerBotController>(Controller);
+     check(tmpPC);
+
+     //  const FSoftObjectPath &spath = idx == 1 ?  PawnTouchInterface.ToSoftObjectPath()  // this line crashes Android App
+     //                                            : PawnTouchInterface2.ToSoftObjectPath() ; // android NDK compiler not so strong !!!!
+
+     if(idx == 1){
+         const FSoftObjectPath &spath =  PawnTouchInterface.ToSoftObjectPath() ;
+
+         if(spath.IsValid()){
+
+             UTouchInterface *const ti = Cast<UTouchInterface>(spath.TryLoad());
+             check(ti);
+             tmpPC->  ActivateTouchInterface( ti );
+
+         }
+
+     }else{
+         const FSoftObjectPath &spath =   PawnTouchInterface2.ToSoftObjectPath();
+
+         if(spath.IsValid()){
+
+             UTouchInterface *const ti = Cast<UTouchInterface>(spath.TryLoad());
+             check(ti);
+             tmpPC->  ActivateTouchInterface( ti );
+
+         }
+     }
 
 
 }

@@ -37,6 +37,9 @@ class TOOTREPSI_API APlayerBotController : public APlayerController
     UPROPERTY()
     class UInputAction* SprintArmIA;
 
+    //
+    UPROPERTY(EditDefaultsOnly, Category="TOOT|Touch")
+    class UTouchInterface* PawnTouchInterface;
 
 
 
@@ -44,8 +47,5 @@ class TOOTREPSI_API APlayerBotController : public APlayerController
      protected:
      virtual void SetupInputComponent() override;
 
-
-
-
-
+    virtual void BeginPlay() override;
  };

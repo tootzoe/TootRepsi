@@ -22,7 +22,7 @@ DEFINES += "UCLASS(...)=TOOTREPSI_API"
 DEFINES += "WITH_EDITORONLY_DATA=1"
 
 ## this project only
-
+DEFINES += PLATFORM_ANDROID
 ##
 
 
@@ -63,6 +63,7 @@ HEADERS += \
     TootRepsi/Public/TootMainGM.h \
     TootRepsi/Public/TootRepsiCharacter.h \
     TootRepsi/Public/TootRepsiPlayerCtrlor.h \
+    TootRepsi/TootDefs.h \
     TootRepsi/TootRepsi.h
 
 SOURCES += \
